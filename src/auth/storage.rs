@@ -68,3 +68,64 @@ impl ApiKeyStorage {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::ApiKeyStorage;
+    use std::fs;
+    use std::io::Write;
+
+    use tempfile::TempDir;
+
+    fn setup_home_with_config(contents: &str) -> TempDir {
+        let temp_dir = TempDir::new().expect("temp dir should be created");
+        let config_path = temp_dir.path().join(".wakatime.cfg");
+        let mut file = fs::File::create(&config_path).expect("config file should be created");
+        writeln!(file, "{}", contents).expect("write config contents");
+        unsafe {
+            std::env::set_var("HOME", temp_dir.path());
+        }
+        temp_dir
+    }
+
+    #[test]
+    fn load_from_wakatime_cfg_returns_key_when_present() {
+        let _temp = setup_home_with_config("api_key = 123456");
+        let storage = ApiKeyStorage::new().expect("storage");
+
+        let key = storage.load_from_wakatime_cfg().expect("should load");
+
+        assert_eq!(key, Some("123456".to_string()));
+    }
+
+    #[test]
+    fn load_from_wakatime_cfg_ignores_missing_file() {
+        let temp_dir = TempDir::new().expect("temp dir should be created");
+        unsafe {
+            std::env::set_var("HOME", temp_dir.path());
+        }
+        let storage = ApiKeyStorage::new().expect("storage");
+
+        let key = storage.load_from_wakatime_cfg().expect("should load");
+
+        assert!(key.is_none());
+    }
+
+    #[test]
+    fn load_api_key_prefers_env_var() {
+        let _temp = setup_home_with_config("api_key = from_file");
+        unsafe {
+            std::env::set_var("WAKATIME_API_KEY", "from_env");
+        }
+
+        let storage = ApiKeyStorage::new().expect("storage");
+
+        let key = storage.load_api_key().expect("should load");
+
+        assert_eq!(key, Some("from_env".to_string()));
+
+        unsafe {
+            std::env::remove_var("WAKATIME_API_KEY");
+        }
+    }
+}
