@@ -1,7 +1,12 @@
 # WakaTUI
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/mshirlaw/wakatui/main/.github/logo.png" alt="WakaTUI Logo" width="200"/>
+  ```
+▗▖ ▗▖ ▗▄▖ ▗▖ ▗▖ ▗▄▖▗▄▄▄▖▗▖ ▗▖▗▄▄▄▖
+▐▌ ▐▌▐▌ ▐▌▐▌▗▞▘▐▌ ▐▌ █  ▐▌ ▐▌  █  
+▐▌ ▐▌▐▛▀▜▌▐▛▚▖ ▐▛▀▜▌ █  ▐▌ ▐▌  █  
+▐▙█▟▌▐▌ ▐▌▐▌ ▐▌▐▌ ▐▌ █  ▝▚▄▞▘▗▄█▄▖
+```
   <p>
     <strong>A Terminal User Interface for WakaTime</strong>
   </p>
