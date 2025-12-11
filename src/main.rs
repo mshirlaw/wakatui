@@ -69,7 +69,6 @@ impl App {
 
     fn handle_crossterm_events(&mut self) -> color_eyre::Result<()> {
         match event::read()? {
-            // it's important to check KeyEventKind::Press to avoid handling key release events
             Event::Key(key) if key.kind == KeyEventKind::Press => self.on_key_event(key),
             Event::Mouse(_) => {}
             Event::Resize(_, _) => {}
