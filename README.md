@@ -1,12 +1,7 @@
 # WakaTUI
 
 <div align="center">
-  ```
-▗▖ ▗▖ ▗▄▖ ▗▖ ▗▖ ▗▄▖▗▄▄▄▖▗▖ ▗▖▗▄▄▄▖
-▐▌ ▐▌▐▌ ▐▌▐▌▗▞▘▐▌ ▐▌ █  ▐▌ ▐▌  █  
-▐▌ ▐▌▐▛▀▜▌▐▛▚▖ ▐▛▀▜▌ █  ▐▌ ▐▌  █  
-▐▙█▟▌▐▌ ▐▌▐▌ ▐▌▐▌ ▐▌ █  ▝▚▄▞▘▗▄█▄▖
-```
+  <img src="img/ascii-art-text.png" alt="WakaTUI" />
   <p>
     <strong>A Terminal User Interface for WakaTime</strong>
   </p>
