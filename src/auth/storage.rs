@@ -21,8 +21,15 @@ impl ApiKeyStorage {
             }
         }
 
-        if let Some(api_key) = self.load_from_wakatime_cfg()? {
-            return Ok(Some(api_key));
+        let home_dir = match std::env::var("HOME") {
+            Ok(dir) => Some(PathBuf::from(dir)),
+            Err(_) => None,
+        };
+
+        if let Some(home_dir) = home_dir {
+            if let Some(api_key) = self.load_from_wakatime_cfg(home_dir)? {
+                return Ok(Some(api_key));
+            }
         }
 
         let entry = Entry::new(SERVICE_NAME, ACCOUNT_NAME)?;
@@ -33,12 +40,7 @@ impl ApiKeyStorage {
         }
     }
 
-    fn load_from_wakatime_cfg(&self) -> Result<Option<String>> {
-        let home_dir = match std::env::var("HOME") {
-            Ok(dir) => PathBuf::from(dir),
-            Err(_) => return Ok(None),
-        };
-
+    fn load_from_wakatime_cfg(&self, home_dir: PathBuf) -> Result<Option<String>> {
         let config_path = home_dir.join(".wakatime.cfg");
 
         if !config_path.exists() {
@@ -82,18 +84,17 @@ mod tests {
         let config_path = temp_dir.path().join(".wakatime.cfg");
         let mut file = fs::File::create(&config_path).expect("config file should be created");
         writeln!(file, "{}", contents).expect("write config contents");
-        unsafe {
-            std::env::set_var("HOME", temp_dir.path());
-        }
         temp_dir
     }
 
     #[test]
     fn load_from_wakatime_cfg_returns_key_when_present() {
-        let _temp = setup_home_with_config("api_key = 123456");
+        let temp = setup_home_with_config("api_key = 123456");
         let storage = ApiKeyStorage::new().expect("storage");
 
-        let key = storage.load_from_wakatime_cfg().expect("should load");
+        let key = storage
+            .load_from_wakatime_cfg(temp.path().to_path_buf())
+            .expect("should load");
 
         assert_eq!(key, Some("123456".to_string()));
     }
@@ -101,18 +102,21 @@ mod tests {
     #[test]
     fn load_from_wakatime_cfg_ignores_missing_file() {
         let temp_dir = TempDir::new().expect("temp dir should be created");
-        unsafe {
-            std::env::set_var("HOME", temp_dir.path());
-        }
         let storage = ApiKeyStorage::new().expect("storage");
 
-        let key = storage.load_from_wakatime_cfg().expect("should load");
+        let key = storage
+            .load_from_wakatime_cfg(temp_dir.path().to_path_buf())
+            .expect("should load");
 
         assert!(key.is_none());
     }
 
     #[test]
     fn load_api_key_prefers_env_var() {
+        // This test sets the WAKATIME_API_KEY environment variable and ensures that
+        // load_api_key prefers it over a value from the config file.
+        // It's important to run this test with RUST_TEST_THREADS=1 to avoid race conditions
+        // with other tests that might also be manipulating environment variables.
         let _temp = setup_home_with_config("api_key = from_file");
         unsafe {
             std::env::set_var("WAKATIME_API_KEY", "from_env");

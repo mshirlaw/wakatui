@@ -37,11 +37,7 @@ impl AuthController {
         if response.status().is_success() {
             Ok(())
         } else {
-            Err(eyre!(
-                "Invalid API key. Status: {}\n\n\
-                Please check your API key at https://wakatime.com/settings/api-key",
-                response.status()
-            ))
+            Err(eyre!("Invalid API key. Status: {}", response.status()))
         }
     }
 
