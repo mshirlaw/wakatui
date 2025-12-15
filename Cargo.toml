@@ -11,7 +11,7 @@ base64 = { version = "0.22", default-features = false, features = ["std"] }
 color-eyre = "0.6.3"
 crossterm = "0.28.1"
 http = "1.1"
-keyring = "2.3.2"
+keyring = "3.6.3"
 rand = "0.9.2"
 ratatui = "0.29.0"
 reqwest = { version = "0.12.8", default-features = false, features = ["json", "rustls-tls", "blocking"] }
