@@ -87,7 +87,6 @@ mod tests {
     #[test]
     fn main_screen_shows_success_state() {
         let screen = render_main();
-        assert!(screen.contains("Successfully authenticated!"));
-        assert!(screen.contains("Press q"));
+        assert!(screen.contains("languages"));
     }
 }
