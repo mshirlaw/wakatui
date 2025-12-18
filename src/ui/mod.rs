@@ -1,8 +1,7 @@
-mod api_key;
-mod authenticated;
+mod screens;
+mod widgets;
 
-pub use api_key::render_input_screen;
-pub use authenticated::render_main_screen;
+pub use screens::{render_input_screen, render_main_screen};
 
 #[cfg(test)]
 mod tests {
