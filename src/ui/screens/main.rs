@@ -1,3 +1,4 @@
+use chrono::Timelike;
 use ratatui::{
     Frame,
     layout::{Constraint, Direction, Layout, Rect},
@@ -33,15 +34,38 @@ pub fn render_header(frame: &mut Frame, area: Rect) {
 
 pub fn render_statistics(frame: &mut Frame, area: Rect, app_data: &AppData) {
     let today_data = if let Some(summary) = &app_data.today_summary {
+        let hourly_data = process_hourly_data(&app_data.today_durations);
         TodayData {
             hours: summary.grand_total.hours,
             minutes: summary.grand_total.minutes,
+            hourly_data,
         }
     } else {
         TodayData::default()
     };
 
     frame.render_widget(Statistics::new(today_data), area);
+}
+
+fn process_hourly_data(durations: &Option<crate::api::DurationsResponse>) -> Vec<f64> {
+    let mut hourly_buckets = vec![0.0; 12]; // 7am-7pm = 12 hours
+
+    if let Some(durations_response) = durations {
+        for duration in &durations_response.data {
+            let datetime = chrono::DateTime::from_timestamp(duration.time as i64, 0);
+            if let Some(dt_utc) = datetime {
+                let dt_local: chrono::DateTime<chrono::Local> = dt_utc.into();
+                let hour = dt_local.hour();
+
+                if hour >= 7 && hour < 19 {
+                    let bucket_index = (hour - 7) as usize;
+                    hourly_buckets[bucket_index] += duration.duration;
+                }
+            }
+        }
+    }
+
+    hourly_buckets
 }
 
 pub fn render_projects(frame: &mut Frame, area: Rect) {

@@ -2,7 +2,7 @@ use base64::{Engine as _, engine::general_purpose::STANDARD};
 use color_eyre::eyre::{Result, eyre};
 use reqwest::blocking::Client;
 
-use super::models::{StatsResponse, SummariesResponse};
+use super::models::{DurationsResponse, StatsResponse, SummariesResponse};
 
 const API_BASE: &str = "https://api.wakatime.com/api/v1";
 
@@ -76,5 +76,27 @@ impl ApiClient {
         let end_date = end.format("%Y-%m-%d").to_string();
 
         self.get_summaries(&start_date, &end_date)
+    }
+
+    pub fn get_durations(&self, date: &str) -> Result<DurationsResponse> {
+        let url = format!("{}/users/current/durations?date={}", API_BASE, date);
+
+        let response = self
+            .client
+            .get(&url)
+            .header("Authorization", self.auth_header())
+            .send()?;
+
+        if !response.status().is_success() {
+            return Err(eyre!("Failed to fetch durations: {}", response.status()));
+        }
+
+        let durations: DurationsResponse = response.json()?;
+        Ok(durations)
+    }
+
+    pub fn get_today_durations(&self) -> Result<DurationsResponse> {
+        let today = chrono::Local::now().format("%Y-%m-%d").to_string();
+        self.get_durations(&today)
     }
 }

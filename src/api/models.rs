@@ -91,3 +91,26 @@ pub struct UserData {
     pub username: Option<String>,
     pub display_name: Option<String>,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DurationsResponse {
+    pub data: Vec<Duration>,
+    pub start: String,
+    pub end: String,
+    pub timezone: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Duration {
+    pub project: Option<String>,
+    pub time: f64,
+    pub duration: f64,
+    #[serde(default)]
+    pub ai_additions: Option<i32>,
+    #[serde(default)]
+    pub ai_deletions: Option<i32>,
+    #[serde(default)]
+    pub human_additions: Option<i32>,
+    #[serde(default)]
+    pub human_deletions: Option<i32>,
+}

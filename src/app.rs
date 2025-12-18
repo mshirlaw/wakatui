@@ -1,7 +1,7 @@
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use ratatui::{DefaultTerminal, Frame};
 
-use crate::api::{ApiClient, DailySummary};
+use crate::api::{ApiClient, DailySummary, DurationsResponse};
 use crate::auth::AuthController;
 use crate::ui;
 
@@ -14,7 +14,7 @@ enum AppState {
 #[derive(Debug, Default)]
 pub struct AppData {
     pub today_summary: Option<DailySummary>,
-    // TODO: future fields can be added here
+    pub today_durations: Option<DurationsResponse>,
 }
 
 #[derive(Debug)]
@@ -62,7 +62,12 @@ impl App {
             .ok()
             .and_then(|r| r.data.into_iter().next());
 
-        AppData { today_summary }
+        let today_durations = client.get_today_durations().ok();
+
+        AppData {
+            today_summary,
+            today_durations,
+        }
     }
 
     pub fn refresh_data(&mut self) {
