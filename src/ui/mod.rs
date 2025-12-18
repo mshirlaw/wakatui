@@ -56,7 +56,9 @@ mod tests {
     }
 
     fn render_main() -> String {
-        let buffer = render_to_buffer(|frame| render_main_screen(frame));
+        use crate::app::AppData;
+        let data = AppData::default();
+        let buffer = render_to_buffer(|frame| render_main_screen(frame, &data));
         buffer_to_string(buffer)
     }
 

@@ -1,12 +1,34 @@
 use ratatui::{
     buffer::Buffer,
     layout::{Constraint, Direction, Layout, Rect},
-    style::Stylize,
-    text::Line,
-    widgets::{Block, Paragraph, Widget},
+    style::{Color, Modifier, Style, Stylize},
+    text::{Line, Span},
+    widgets::{Block, Borders, Paragraph, Widget},
 };
 
-pub struct Statistics;
+pub struct TodayData {
+    pub hours: i32,
+    pub minutes: i32,
+}
+
+impl Default for TodayData {
+    fn default() -> Self {
+        Self {
+            hours: 0,
+            minutes: 0,
+        }
+    }
+}
+
+pub struct Statistics {
+    pub today_data: TodayData,
+}
+
+impl Statistics {
+    pub fn new(today_data: TodayData) -> Self {
+        Self { today_data }
+    }
+}
 
 impl Widget for Statistics {
     fn render(self, area: Rect, buf: &mut Buffer) {
@@ -24,10 +46,7 @@ impl Widget for Statistics {
             ])
             .split(inner);
 
-        let first = vec![Line::from("today").bold().green().centered()];
-        Paragraph::new(first)
-            .block(Block::bordered())
-            .render(layout[0], buf);
+        render_today_box(layout[0], buf, &self.today_data);
 
         let second = vec![Line::from("week").bold().green().centered()];
         Paragraph::new(second)
@@ -44,4 +63,29 @@ impl Widget for Statistics {
             .block(Block::bordered())
             .render(layout[3], buf);
     }
+}
+
+fn render_today_box(area: Rect, buf: &mut Buffer, data: &TodayData) {
+    let block = Block::default()
+        .borders(Borders::ALL)
+        .border_style(Style::default().fg(Color::Rgb(139, 92, 246)));
+
+    let inner = block.inner(area);
+    block.render(area, buf);
+
+    let chunks = Layout::vertical([Constraint::Length(1), Constraint::Min(1)]).split(inner);
+
+    let header = Line::from(vec![
+        Span::styled("⚡ ", Style::default().fg(Color::Rgb(139, 92, 246))),
+        Span::styled("TODAY", Style::default().fg(Color::Rgb(139, 92, 246))),
+    ]);
+    Paragraph::new(header).render(chunks[0], buf);
+
+    let time_text = format!("{}h {}m", data.hours, data.minutes);
+    let time = Line::from(time_text).style(
+        Style::default()
+            .fg(Color::White)
+            .add_modifier(Modifier::BOLD),
+    );
+    Paragraph::new(time).render(chunks[1], buf);
 }
