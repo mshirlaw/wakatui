@@ -134,7 +134,7 @@ fn render_custom_bars(area: Rect, buf: &mut Buffer, hourly_data: &[f64]) {
 
         // Calculate bar height (0-8 levels based on bar_chars)
         let normalized = (seconds / max_seconds * 8.0).ceil() as usize;
-        let bar_level = normalized.min(8).max(1) - 1;
+        let bar_level = normalized.clamp(1, 8) - 1;
         let bar_char = bar_chars[bar_level];
 
         // Calculate x position for this bar

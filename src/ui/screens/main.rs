@@ -57,7 +57,7 @@ fn process_hourly_data(durations: &Option<crate::api::DurationsResponse>) -> Vec
                 let dt_local: chrono::DateTime<chrono::Local> = dt_utc.into();
                 let hour = dt_local.hour();
 
-                if hour >= 7 && hour < 19 {
+                if (7..19).contains(&hour) {
                     let bucket_index = (hour - 7) as usize;
                     hourly_buckets[bucket_index] += duration.duration;
                 }
