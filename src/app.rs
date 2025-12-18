@@ -1,6 +1,7 @@
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use ratatui::{DefaultTerminal, Frame};
 
+use crate::api::{ApiClient, DailySummary, DurationsResponse};
 use crate::auth::AuthController;
 use crate::ui;
 
@@ -10,6 +11,12 @@ enum AppState {
     Authenticated,
 }
 
+#[derive(Debug, Default)]
+pub struct AppData {
+    pub today_summary: Option<DailySummary>,
+    pub today_durations: Option<DurationsResponse>,
+}
+
 #[derive(Debug)]
 pub struct App {
     running: bool,
@@ -17,21 +24,25 @@ pub struct App {
     auth_controller: AuthController,
     api_key_input: String,
     error_message: Option<String>,
+    api_client: Option<ApiClient>,
+    data: AppData,
 }
 
 impl App {
     pub fn new() -> color_eyre::Result<Self> {
         let auth_controller = AuthController::new()?;
 
-        let state = match auth_controller.get_api_key()? {
+        let (state, api_client, data) = match auth_controller.get_api_key()? {
             Some(api_key) => {
                 if auth_controller.validate_api_key(&api_key).is_ok() {
-                    AppState::Authenticated
+                    let client = ApiClient::new(api_key);
+                    let data = Self::fetch_data(&client);
+                    (AppState::Authenticated, Some(client), data)
                 } else {
-                    AppState::EnteringApiKey
+                    (AppState::EnteringApiKey, None, AppData::default())
                 }
             }
-            None => AppState::EnteringApiKey,
+            None => (AppState::EnteringApiKey, None, AppData::default()),
         };
 
         Ok(Self {
@@ -40,7 +51,29 @@ impl App {
             auth_controller,
             api_key_input: String::new(),
             error_message: None,
+            api_client,
+            data,
         })
+    }
+
+    fn fetch_data(client: &ApiClient) -> AppData {
+        let today_summary = client
+            .get_today()
+            .ok()
+            .and_then(|r| r.data.into_iter().next());
+
+        let today_durations = client.get_today_durations().ok();
+
+        AppData {
+            today_summary,
+            today_durations,
+        }
+    }
+
+    pub fn refresh_data(&mut self) {
+        if let Some(client) = &self.api_client {
+            self.data = Self::fetch_data(client);
+        }
     }
 
     pub fn run(mut self, mut terminal: DefaultTerminal) -> color_eyre::Result<()> {
@@ -58,7 +91,7 @@ impl App {
                 ui::render_input_screen(frame, &self.api_key_input, self.error_message.as_deref());
             }
             AppState::Authenticated => {
-                ui::render_main_screen(frame);
+                ui::render_main_screen(frame, &self.data);
             }
         }
     }
@@ -103,6 +136,7 @@ impl App {
         match (key.modifiers, key.code) {
             (_, KeyCode::Esc | KeyCode::Char('q'))
             | (KeyModifiers::CONTROL, KeyCode::Char('c') | KeyCode::Char('C')) => self.quit(),
+            (_, KeyCode::Char('r') | KeyCode::Char('R')) => self.refresh_data(),
             _ => {}
         }
         Ok(())
@@ -116,6 +150,9 @@ impl App {
 
         match self.auth_controller.set_api_key(self.api_key_input.clone()) {
             Ok(_) => {
+                let client = ApiClient::new(self.api_key_input.clone());
+                self.data = Self::fetch_data(&client);
+                self.api_client = Some(client);
                 self.state = AppState::Authenticated;
                 self.api_key_input.clear();
                 self.error_message = None;

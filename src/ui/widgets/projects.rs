@@ -10,7 +10,7 @@ pub struct Projects;
 
 impl Widget for Projects {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        let block = Block::bordered();
+        let block = Block::new();
         let inner = block.inner(area);
         block.render(area, buf);
 
