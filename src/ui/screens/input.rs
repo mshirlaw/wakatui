@@ -51,7 +51,7 @@ pub fn render_input_screen(frame: &mut Frame, api_key_input: &str, error_message
     if let Some(error) = error_message {
         text.push(
             Line::from(Span::styled(
-                format!("{}", error),
+                error.to_string(),
                 Style::default().fg(Color::Red).add_modifier(Modifier::BOLD),
             ))
             .centered(),
