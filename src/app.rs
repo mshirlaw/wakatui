@@ -30,7 +30,7 @@ pub struct App {
 
 impl App {
     pub fn new() -> color_eyre::Result<Self> {
-        let auth_controller = AuthController::new()?;
+        let auth_controller = AuthController::new();
 
         let (state, api_client, data) = match auth_controller.get_api_key()? {
             Some(api_key) => {

@@ -11,11 +11,11 @@ pub struct AuthController {
 }
 
 impl AuthController {
-    pub fn new() -> Result<Self> {
-        Ok(Self {
-            storage: ApiKeyStorage::new()?,
+    pub fn new() -> Self {
+        Self {
+            storage: ApiKeyStorage::new(),
             client: Client::new(),
-        })
+        }
     }
 
     pub fn set_api_key(&mut self, api_key: String) -> Result<()> {

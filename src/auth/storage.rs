@@ -10,8 +10,8 @@ const ACCOUNT_NAME: &str = "api_key";
 pub struct ApiKeyStorage;
 
 impl ApiKeyStorage {
-    pub fn new() -> Result<Self> {
-        Ok(Self)
+    pub fn new() -> Self {
+        Self
     }
 
     pub fn load_api_key(&self) -> Result<Option<String>> {
@@ -88,7 +88,7 @@ mod tests {
     #[test]
     fn load_from_wakatime_cfg_returns_key_when_present() {
         let temp = setup_home_with_config("api_key = 123456");
-        let storage = ApiKeyStorage::new().expect("storage");
+        let storage = ApiKeyStorage::new();
 
         let key = storage
             .load_from_wakatime_cfg(temp.path().to_path_buf())
@@ -100,7 +100,7 @@ mod tests {
     #[test]
     fn load_from_wakatime_cfg_ignores_missing_file() {
         let temp_dir = TempDir::new().expect("temp dir should be created");
-        let storage = ApiKeyStorage::new().expect("storage");
+        let storage = ApiKeyStorage::new();
 
         let key = storage
             .load_from_wakatime_cfg(temp_dir.path().to_path_buf())
@@ -120,7 +120,7 @@ mod tests {
             std::env::set_var("WAKATIME_API_KEY", "from_env");
         }
 
-        let storage = ApiKeyStorage::new().expect("storage");
+        let storage = ApiKeyStorage::new();
 
         let key = storage.load_api_key().expect("should load");
 
