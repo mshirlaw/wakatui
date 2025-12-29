@@ -24,7 +24,7 @@ webbrowser = "1.0.6"
 
 [dev-dependencies]
 mockito = "1.4"
-tempfile = "3.10"
+tempfile = "3.24"
 
 # Read the optimization guideline for more details: https://ratatui.rs/recipes/apps/release-your-app/#optimizations
 [profile.release]
