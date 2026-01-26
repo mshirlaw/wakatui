@@ -1,6 +1,6 @@
 # WakaTUI 
 
-**Note** This repository is a work in progress. Many features are incomplete. 
+**Note:** This repository is a work in progress. Many features are incomplete. 
 
 <div align="center">
   <img src="img/ascii-art-text.png" alt="WakaTUI" />
