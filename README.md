@@ -1,4 +1,4 @@
-# WakaTUI
+# WakaTUI (Work In Progress)
 
 <div align="center">
   <img src="img/ascii-art-text.png" alt="WakaTUI" />
